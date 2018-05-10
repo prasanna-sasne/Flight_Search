@@ -1,0 +1,1 @@
+angular.module("FlightSearchApp", ['ui.router']);

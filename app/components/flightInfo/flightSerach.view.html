@@ -1,0 +1,121 @@
+<div class="container">
+	<div class="header">
+		<h1>Flight Search Engine</h1>
+	</div>
+	<hr>
+	<div class="row">
+		<div class="col-3 menu">
+			<form name="flightForm" ng-submit="FSCtrl.searchFlight()">
+			<div class="user-input">
+				<div>
+					<button class="" data-ng-click="FSCtrl.changeBgColor('oneWay');" data-ng-class="FSCtrl.oneWay">One Way</button>
+					<button class="btn-primary" data-ng-click="FSCtrl.changeBgColor('twoWay')" data-ng-class="FSCtrl.twoWay">Two Way</button>
+					<div data-ng-style="FSCtrl.arrow" style="margin-left: 15%;">
+						<i class="down"></i>
+					</div>
+					
+					<ul>
+						<li ng-class="{'has-error':flightForm.originCity.$error.required && !flightForm.originCity.$pristine}">
+							<select ng-model="FSCtrl.userInput.originCity" name="originCity" id="originCity" class="form-control" required>
+								<option label="Origin City" disabled></option>
+								<option ng-repeat="city in FSCtrl.cityList" ng-value="city.code">{{city.name}}</option>
+							</select>
+							<div class="summary-error">
+									<span class="text-error"
+										data-ng-show="!flightForm.originCity.$pristine && flightForm.originCity.$error.required">origin
+										city required</span>
+							</div>
+						</li>
+						<li ng-class="{'has-error':flightForm.destinationCity.$error.required && !flightForm.destinationCity.$pristine}">
+							<select ng-model="FSCtrl.userInput.destinationCity" id="destinationCity" name="destinationCity" required>
+								<option label="Destination City" disabled></option>
+								<option ng-repeat="city in FSCtrl.cityList" ng-value="city.code">{{city.name}}</option>
+							</select>
+							<div class="summary-error">
+									<span class="text-error"
+										data-ng-show="!flightForm.destinationCity.$pristine && flightForm.destinationCity.$error.required">Destination
+										city required</span>
+							</div>
+						</li>
+						<li>
+							<input type="date" placeholder="Deaprture Date" date="departureDate" data-ng-model="FSCtrl.userInput.departureDate">
+						</li>
+						<li data-ng-hide="FSCtrl.oneWayFlag">
+							<input type="date" placeholder="Return Date" date="returnDate" data-ng-model="FSCtrl.userInput.returnDate">
+						</li>
+						<li>
+							<input type="number" placeholder="Passengers" data-ng-model="FSCtrl.userInput.passengerCount">
+						</li>
+						<li>
+							<button class="btn-primary"
+							data-ng-disabled="flightForm.originCity.$invalid && flightForm.originCity.$dirty || flightForm.destinationCity.$invalid && flightForm.destinationCity.$dirty || 
+							flightForm.$invalid">search</button>
+						</li>
+					</ul>
+				
+				</div>
+			</div>
+			<div class="refine-filght-search">
+				<div>Refine Flight Search</div>
+				<div class="slidecontainer">
+					<span>0</span>
+					<span style="margin-left: 12rem;">10000</span>
+					<input type="range" name="range"  
+						ng-model="sliderValue" min="{{min}}" max="{{max}}">
+					value = <code>{{sliderValue}}</code><br/>
+					<button data-ng-click="FSCtrl.searchFlight()" class="btn-primary"
+					data-ng-disabled="flightForm.originCity.$invalid && flightForm.originCity.$dirty || flightForm.destinationCity.$invalid && flightForm.destinationCity.$dirty || 
+							flightForm.$invalid">Search</button>
+				</div>
+			</div>
+		</form>
+		</div>
+
+		<div class="col-9 flights-data">
+			<div class="row">
+				<div class="col-6">
+					<span data-ng-show="FSCtrl.userInput.originCity != ''">{{ FSCtrl.userInput.originCity }}</span>
+					<span data-ng-show="FSCtrl.userInput.destinationCity != ''"> > {{ FSCtrl.userInput.destinationCity }}</span>
+					<span data-ng-show="FSCtrl.twoWayFlag && FSCtrl.userInput.originCity != ''"> > {{ FSCtrl.userInput.originCity }}</span>
+				</div>
+				<div class="col-3"></div>
+				<div class="col-3 flex-conatiner">
+						<div data-ng-hide="FSCtrl.userInput.departureDate === undefined">Depart: {{ FSCtrl.userInput.departureDate | date }}</div>
+						<div data-ng-hide="FSCtrl.oneWayFlag">Return: {{ FSCtrl.userInput.returnDate | date}}</div>
+				</div>
+			</div>
+		
+			<hr>
+
+			<div class="flex-content ng-scope" data-ng-repeat="flight in FSCtrl.flightList track by $index">
+				<div data-ng-show="flight.data != undefined">
+					<h3 data-ng-if="flight.value != undefined"> Total Rs.{{ flight.data.fare + flight.value.fare}} </h3>
+					<h3 class="ng-binding">Rs.{{ flight.data.fare }}</h3>
+					<h5 class="ng-binding">{{ flight.data.flightName}}</h5>
+					<div class="ng-binding">{{ flight.data.originCityCode}} > {{flight.data.desinationCityCode}}</div>
+					<div class="ng-binding">Depart: {{ flight.data.departDate | date : 'dd-MM-yyyy h:mm a'}}</div>
+					<div class="ng-binding">Arrive: {{flight.data.arriveDate | date : 'dd-MM-yyyy h:mm a'}}</div>
+				</div>
+				<div class="flight-return" data-ng-show="flight.value != undefined">
+					<h3 class="ng-binding" data-ng-if="flight.value != undefined">Rs.{{ flight.value.fare }}</h3>
+					<h5 data-ng-src="{flight.data.fare + flight.value.fare}">{{ flight.value.flightName}}</h5>
+					<div>{{ flight.value.originCityCode}} > {{flight.value.desinationCityCode}}</div>
+					<div>Depart: {{ flight.value.departDate | date : 'dd-MM-yyyy h:mm a'}}</div>
+					<div>Arrive: {{flight.value.arriveDate | date : 'dd-MM-yyyy h:mm a'}}</div>
+				</div>
+				<div>
+					<div class="flight-image">
+
+					</div>
+					<div>
+						<button class="btn-primary book-flight">Book this flight</button>
+					</div>
+				</div>
+			</div>
+			<div class="flex-content ng-scope" data-ng-if="FSCtrl.flightList.length == 0">
+					<h3 style="padding: 7%;"> Sorry there are no fligts availble according to your requirement....</h3>
+			</div>
+		</div>
+
+	</div>
+</div>
